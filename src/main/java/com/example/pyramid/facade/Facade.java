@@ -24,8 +24,8 @@ public class Facade extends _BaseService {
         registerService.registerUser(person, parentId);
     }
 
-    public void createAccount(Person person, BigDecimal amount, Tax tax) {
+    public void createAccount(Person person, BigDecimal amount) {
         registerService.createBankAccount(person , amount);
-        taxService.payTax(tax);
+        taxService.payTax(person , amount);
     }
 }

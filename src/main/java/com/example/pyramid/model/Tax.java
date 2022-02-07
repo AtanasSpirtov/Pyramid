@@ -7,7 +7,7 @@ public class Tax extends _BaseEntity{
 
     private String name;
 
-    private Long taxAmount;
+    private Double taxAmount;
 
     public String getName() {
         return name;
@@ -17,11 +17,11 @@ public class Tax extends _BaseEntity{
         this.name = name;
     }
 
-    public Long getTaxAmount() {
+    public Double getTaxAmount() {
         return taxAmount;
     }
 
-    public void setTaxAmount(Long taxAmount) {
+    public void setTaxAmount(Double taxAmount) {
         this.taxAmount = taxAmount;
     }
 }

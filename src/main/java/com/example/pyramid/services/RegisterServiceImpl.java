@@ -32,9 +32,4 @@ public class RegisterServiceImpl extends _BaseService implements RegisterService
                 .getSingleResult();
         newBankAccount.setOwner(owner);
     }
-
-    private static Stream<Person> parentChain(Person person) {
-        return Objects.nonNull(person.getParent())
-                ? Stream.concat(Stream.of(person.getParent()), parentChain(person.getParent())) : Stream.empty();
-    }
 }

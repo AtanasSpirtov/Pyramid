@@ -4,12 +4,14 @@ import com.example.pyramid.model.Person;
 import com.example.pyramid.model.Transaction;
 import com.example.pyramid.model.TransactionType;
 import com.example.pyramid.services.api.BankService;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalTime;
 import java.util.Objects;
 
+@Service
 public class BankServiceImpl extends _BaseService implements BankService {
 
     private static final Long companyClearingAccount = -1L;
