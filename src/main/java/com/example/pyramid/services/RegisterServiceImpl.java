@@ -7,8 +7,6 @@ import com.example.pyramid.services.api.RegisterService;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-import java.util.Objects;
-import java.util.stream.Stream;
 
 @Service
 public class RegisterServiceImpl extends _BaseService implements RegisterService {
@@ -16,9 +14,10 @@ public class RegisterServiceImpl extends _BaseService implements RegisterService
 
     @Override
     public void registerUser(PersonDTO person, Long parentId) {
-        Person newPerson = new Person();
-        newPerson.setName(person.getName());
-        newPerson.setParent(em.find(Person.class, parentId));
+        Person newPerson = Person.builder()
+                .setName(person.getName())
+                .setParent(em.find(Person.class, parentId))
+                .build();
         em.persist(newPerson);
     }
 
@@ -31,5 +30,6 @@ public class RegisterServiceImpl extends _BaseService implements RegisterService
                 .setParameter("name", person.getName())
                 .getSingleResult();
         newBankAccount.setOwner(owner);
+        em.persist(newBankAccount);
     }
 }

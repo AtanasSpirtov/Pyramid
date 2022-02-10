@@ -15,6 +15,15 @@ public class Person extends _BaseEntity {
     @JoinColumn(name = "account_id")
     private BankAccount account;
 
+    public Person(String name, Person parent, BankAccount account) {
+        this.name = name;
+        this.parent = parent;
+        this.account = account;
+    }
+
+    public Person() {}
+
+
     public void setAccount(BankAccount account) {
         this.account = account;
     }
@@ -37,5 +46,35 @@ public class Person extends _BaseEntity {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public static PersonBuilder builder() {
+        return new PersonBuilder();
+    }
+
+    public static class PersonBuilder {
+
+        private String name;
+        private Person parent;
+        private BankAccount bankAccount;
+
+        public PersonBuilder setName(final String name) {
+            this.name = name;
+            return this;
+        }
+
+        public PersonBuilder setParent(final Person parent) {
+            this.parent = parent;
+            return this;
+        }
+
+        public PersonBuilder setBankAccount(final BankAccount bankAccount) {
+            this.bankAccount = bankAccount;
+            return this;
+        }
+
+        public Person build() {
+            return new Person(name, parent, bankAccount);
+        }
     }
 }
