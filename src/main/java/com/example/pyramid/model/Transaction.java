@@ -12,14 +12,17 @@ import java.time.LocalTime;
 public class Transaction extends _BaseEntity {
 
     @ManyToOne
-    private Person recipientAccount;
+    private BankAccount recipientAccount;
 
     @ManyToOne
-    private Person sourceAccount;
+    private BankAccount sourceAccount;
 
     private BigDecimal transactionAmount;
 
     private LocalTime transactionTime;
+
+    @Enumerated(EnumType.STRING)
+    private OperationType operationType;
 
     @Enumerated(EnumType.STRING)
     private TransactionType transactionType;
@@ -36,19 +39,20 @@ public class Transaction extends _BaseEntity {
         this.transactionTime = transactionTime;
     }
 
-    public TransactionType getTransactionType() {
-        return transactionType;
+    public OperationType getTransactionType() {
+        return operationType;
     }
 
-    public void setTransactionType(TransactionType transactionType) {
-        this.transactionType = transactionType;
+    public void setTransactionType(OperationType operationType) {
+        this.operationType = operationType;
     }
 
-    public Transaction(Person sourceAccount , Person recipientAccount, BigDecimal transactionAmount, LocalTime transactionTime, TransactionType transactionType) {
+    public Transaction(BankAccount sourceAccount , BankAccount recipientAccount, BigDecimal transactionAmount, LocalTime transactionTime, OperationType operationType , TransactionType transactionType) {
         this.sourceAccount = sourceAccount;
         this.recipientAccount = recipientAccount;
         this.transactionAmount = transactionAmount;
         this.transactionTime = transactionTime;
+        this.operationType = operationType;
         this.transactionType = transactionType;
     }
 
@@ -61,19 +65,19 @@ public class Transaction extends _BaseEntity {
         return transactionAmount;
     }
 
-    public Person getRecipientAccount() {
+    public BankAccount getRecipientAccount() {
         return recipientAccount;
     }
 
-    public void setRecipientAccount(Person recipientAccount) {
+    public void setRecipientAccount(BankAccount recipientAccount) {
         this.recipientAccount = recipientAccount;
     }
 
-    public Person getSourceAccount() {
+    public BankAccount getSourceAccount() {
         return sourceAccount;
     }
 
-    public void setSourceAccount(Person sourceAccount) {
+    public void setSourceAccount(BankAccount sourceAccount) {
         this.sourceAccount = sourceAccount;
     }
 }

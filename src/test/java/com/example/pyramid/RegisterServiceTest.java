@@ -30,11 +30,11 @@ public class RegisterServiceTest {
     public void registerUserAndBankAccount() {
 
         //testing creation of user
-        final PersonDTO personDTO = new PersonDTO();
-        personDTO.setName("testUserCreation");
+        final Person person = new Person();
+        person.setName("testUserCreation");
         final Person parent = em.find(Person.class , 2L);
 
-        registerService.registerUser(personDTO , parent.getId());
+        registerService.registerUser(person , parent.getId());
 
         Person entity = em.createQuery("select p from Person p where p.name =: testName" , Person.class)
                 .setParameter("testName", "testUserCreation")
@@ -43,10 +43,9 @@ public class RegisterServiceTest {
         assertThat(entity).isNotNull();
 
         //testing creation of bank account
-        registerService.createBankAccount(entity , BigDecimal.valueOf(1000));
+        registerService.createBankAccount(entity , BigDecimal.valueOf(1000000000));
 
-        BankAccount account = em.createQuery("select b from BankAccount b where b.owner =: entity" , BankAccount.class)
-                .setParameter("entity", entity)
+        BankAccount account = em.createQuery("select b from BankAccount b where b.balance = 1000000000" , BankAccount.class)
                 .getSingleResult();
 
         assertThat(account).isNotNull();

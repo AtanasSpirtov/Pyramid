@@ -2,18 +2,31 @@ package com.example.pyramid.services;
 
 import com.example.pyramid.model.Person;
 import com.example.pyramid.model.Tax;
+import com.example.pyramid.model.TransactionType;
 import com.example.pyramid.services.api.BankService;
 import com.example.pyramid.services.api.TaxService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.*;
-import java.util.stream.Collectors;
+import java.util.function.Consumer;
 import java.util.stream.Stream;
+
+import static java.math.RoundingMode.*;
 
 @Service
 public class TaxServiceImpl extends _BaseService implements TaxService {
+
+    private final BigDecimal GRAND_GRAND_FATHER_BONUS = BigDecimal.valueOf(2);
+
+    private final BigDecimal GRAND_FATHER_BONUS = BigDecimal.valueOf(3);
+
+    private final BigDecimal FATHER_BONUS = BigDecimal.valueOf(5);
+
+
+    private static final BigDecimal BIG_DECIMAL_100 = new BigDecimal("100.00");
 
     private static final Long COMPANY_ID = 1L;
 
@@ -21,25 +34,28 @@ public class TaxServiceImpl extends _BaseService implements TaxService {
     BankService bankService;
 
     @Override
+    @Transactional
     public void payTax(Person person, BigDecimal amount) {
-        List<Tax> taxes = em.createQuery("select tax from Tax tax", Tax.class).getResultList();
+        Tax tax = em.createQuery(
+                        "select tax from Tax tax where tax.taxAmount < :pAmount order by tax.taxAmount desc ", Tax.class)
+                .setParameter("pAmount", amount).setMaxResults(1).getSingleResult();
 
-        taxes.sort((a, b) -> b.getTaxAmount().compareTo(a.getTaxAmount()));
+        Person company = em.find(Person.class, COMPANY_ID);
+        Objects.requireNonNull(company, "Goljam fal: company is not found!");
 
-        Tax t = taxes.stream().filter(tax -> amount.subtract(BigDecimal.valueOf(tax.getTaxAmount())).compareTo(BigDecimal.ZERO) >= 0)
-                .findFirst().orElseThrow();
+        //return money to company
+        BigDecimal taxAmount = tax.getTaxAmount().setScale(2 , FLOOR);
+        bankService.transferMoney(person, company, taxAmount, TransactionType.Tax);
 
-        List<Person> parents = parentChain(person).limit(3).collect(Collectors.toList());
+        // process direct bonus
+        final Consumer<Person> personConsumer = parents -> {
+            Iterator<BigDecimal> taxPercents =
+                    Arrays.asList(GRAND_GRAND_FATHER_BONUS , GRAND_FATHER_BONUS , FATHER_BONUS).iterator();
+            BigDecimal bonus = taxAmount.multiply(taxPercents.next()).divide(BIG_DECIMAL_100 , FLOOR).setScale(2, FLOOR);
+            bankService.transferMoney(company, parents, bonus, TransactionType.DirectBonus);
+        };
 
-        try {
-            bankService.transferMoney(person, parents.get(0), BigDecimal.valueOf(t.getTaxAmount() % 5));
-            bankService.transferMoney(person, parents.get(1), BigDecimal.valueOf(t.getTaxAmount() % 3));
-            bankService.transferMoney(person, parents.get(2), BigDecimal.valueOf(t.getTaxAmount() % 2));
-            bankService.transferMoney(person, em.find(Person.class, COMPANY_ID), BigDecimal.valueOf(t.getTaxAmount() * 0.9));
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
+        parentChain(person).limit(3).forEach(personConsumer);
     }
 
     private static Stream<Person> parentChain(Person person) {

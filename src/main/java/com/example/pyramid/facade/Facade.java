@@ -1,8 +1,6 @@
 package com.example.pyramid.facade;
 
-import com.example.pyramid.DTO.PersonDTO;
 import com.example.pyramid.model.Person;
-import com.example.pyramid.model.Tax;
 import com.example.pyramid.services.api.RegisterService;
 import com.example.pyramid.services.api.TaxService;
 import com.example.pyramid.services._BaseService;
@@ -20,11 +18,11 @@ public class Facade extends _BaseService {
     @Autowired
     RegisterService registerService;
 
-    public void registerUser(PersonDTO person, Long parentId) {
+    public void registerUser(Person person, Long parentId) {
         registerService.registerUser(person, parentId);
     }
 
-    public void createAccount(Person person, BigDecimal amount) {
+    public void createAccount(Person person, BigDecimal amount) throws Exception {
         registerService.createBankAccount(person , amount);
         taxService.payTax(person , amount);
     }

@@ -1,13 +1,14 @@
 package com.example.pyramid.model;
 
 import javax.persistence.Entity;
+import java.math.BigDecimal;
 
 @Entity
 public class Tax extends _BaseEntity{
 
     private String name;
 
-    private Double taxAmount;
+    private BigDecimal taxAmount;
 
     public String getName() {
         return name;
@@ -17,11 +18,11 @@ public class Tax extends _BaseEntity{
         this.name = name;
     }
 
-    public Double getTaxAmount() {
+    public BigDecimal getTaxAmount() {
         return taxAmount;
     }
 
-    public void setTaxAmount(Double taxAmount) {
+    public void setTaxAmount(BigDecimal taxAmount) {
         this.taxAmount = taxAmount;
     }
 }
