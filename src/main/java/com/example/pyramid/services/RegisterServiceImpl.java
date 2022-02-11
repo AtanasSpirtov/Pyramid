@@ -1,6 +1,5 @@
 package com.example.pyramid.services;
 
-import com.example.pyramid.DTO.PersonDTO;
 import com.example.pyramid.model.BankAccount;
 import com.example.pyramid.model.Person;
 import com.example.pyramid.services.api.RegisterService;
@@ -10,7 +9,6 @@ import java.math.BigDecimal;
 
 @Service
 public class RegisterServiceImpl extends _BaseService implements RegisterService {
-
 
     @Override
     public void registerUser(Person person, Long parentId) {

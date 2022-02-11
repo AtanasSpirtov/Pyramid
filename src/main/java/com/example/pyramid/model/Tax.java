@@ -10,6 +10,10 @@ public class Tax extends _BaseEntity{
 
     private BigDecimal taxAmount;
 
+    private BigDecimal bonusPercentsInDirectBonus;
+
+    private BigDecimal bonusPercentsInGroupBonus;
+
     public String getName() {
         return name;
     }
@@ -24,5 +28,21 @@ public class Tax extends _BaseEntity{
 
     public void setTaxAmount(BigDecimal taxAmount) {
         this.taxAmount = taxAmount;
+    }
+
+    public BigDecimal getBonusPercentsInDirectBonus() {
+        return bonusPercentsInDirectBonus;
+    }
+
+    public void setBonusPercentsInDirectBonus(BigDecimal bonusPercentsInDirectBonus) {
+        this.bonusPercentsInDirectBonus = bonusPercentsInDirectBonus;
+    }
+
+    public BigDecimal getBonusPercentsInGroupBonus() {
+        return bonusPercentsInGroupBonus;
+    }
+
+    public void setBonusPercentsInGroupBonus(BigDecimal bonusPercentsInGroupBonus) {
+        this.bonusPercentsInGroupBonus = bonusPercentsInGroupBonus;
     }
 }

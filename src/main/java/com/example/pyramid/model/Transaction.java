@@ -1,5 +1,8 @@
 package com.example.pyramid.model;
 
+import com.example.pyramid.model.enums.OperationType;
+import com.example.pyramid.model.enums.TransactionType;
+
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
