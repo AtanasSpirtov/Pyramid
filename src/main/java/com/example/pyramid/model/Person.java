@@ -21,16 +21,18 @@ public class Person extends _BaseEntity {
 
     LocalDate taxExpirationDate;
 
-    public Person(String name, Person parent, BankAccount account , Tax taxTypePaid, LocalDate taxExpirationDate) {
+    LocalDate registrationDate;
+
+    public Person(String name, Person parent, BankAccount account , Tax taxTypePaid, LocalDate taxExpirationDate , LocalDate registrationDate) {
         this.name = name;
         this.parent = parent;
         this.account = account;
         this.taxTypePaid = taxTypePaid;
         this.taxExpirationDate = taxExpirationDate;
+        this.registrationDate = registrationDate;
     }
 
-    public Person() {
-    }
+    public Person() {}
 
 
     public BankAccount getAccount() {
@@ -71,6 +73,14 @@ public class Person extends _BaseEntity {
         this.taxExpirationDate = taxExpirationDate;
     }
 
+    public LocalDate getRegistrationDate() {
+        return registrationDate;
+    }
+
+    public void setRegistrationDate(LocalDate registrationDate) {
+        this.registrationDate = registrationDate;
+    }
+
     public static PersonBuilder builder() {
         return new PersonBuilder();
     }
@@ -82,6 +92,7 @@ public class Person extends _BaseEntity {
         private BankAccount bankAccount;
         private Tax taxTypePaid;
         private LocalDate taxExpirationDate;
+        private LocalDate registrationDate;
 
         public PersonBuilder setName(final String name) {
             this.name = name;
@@ -98,16 +109,23 @@ public class Person extends _BaseEntity {
             return this;
         }
 
-        public void setTaxTypePaid(Tax taxTypePaid) {
+        public PersonBuilder setTaxTypePaid(Tax taxTypePaid) {
             this.taxTypePaid = taxTypePaid;
+            return this;
         }
 
-        public void setTaxExpirationDate(LocalDate taxExpirationDate) {
+        public PersonBuilder setTaxExpirationDate(LocalDate taxExpirationDate) {
             this.taxExpirationDate = taxExpirationDate;
+            return this;
+        }
+
+        public PersonBuilder setRegistrationDate(LocalDate registrationDate) {
+            this.registrationDate = registrationDate;
+            return this;
         }
 
         public Person build() {
-            return new Person(name, parent, bankAccount , taxTypePaid,taxExpirationDate);
+            return new Person(name, parent, bankAccount , taxTypePaid, taxExpirationDate , registrationDate);
         }
     }
 }

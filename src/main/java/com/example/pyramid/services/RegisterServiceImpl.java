@@ -6,6 +6,7 @@ import com.example.pyramid.services.api.RegisterService;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 
 @Service
 public class RegisterServiceImpl extends _BaseService implements RegisterService {
@@ -15,7 +16,9 @@ public class RegisterServiceImpl extends _BaseService implements RegisterService
         Person newPerson = Person.builder()
                 .setName(person.getName())
                 .setParent(em.find(Person.class, parentId))
+                .setRegistrationDate(LocalDate.now())
                 .build();
+
         em.persist(newPerson);
     }
 

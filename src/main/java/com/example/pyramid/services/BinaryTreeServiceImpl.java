@@ -23,6 +23,8 @@ import static java.math.RoundingMode.FLOOR;
 public class BinaryTreeServiceImpl extends _BaseService implements BinaryTreeService {
 
     private final BigDecimal BIG_DECIMAL_100 = BigDecimal.valueOf(100);
+    private final BigDecimal BIG_DECIMAL_10000 = BigDecimal.valueOf(10000);
+
 
     @Autowired
     BankService bankService;
@@ -69,17 +71,29 @@ public class BinaryTreeServiceImpl extends _BaseService implements BinaryTreeSer
                 .getResultList().parallelStream().forEach(participant -> {
 
                     //check if tax is paid
-                    if (LocalDate.now().isBefore(participant.getPerson().getTaxExpirationDate())) {
+                    if (LocalDate.now().isBefore(participant.getPerson().getTaxExpirationDate())) return;
 
-                        BigDecimal minAmount = participant.getLeftBox().getValue().min(participant.getRightBox().getValue());
+                    //check if condition for min money is completed
+                    if (participant.getRightBox().getValue().add(participant.getLeftBox().getValue()).compareTo(BIG_DECIMAL_10000) < 0)
+                        return;
 
-                        bankService.transferMoney(
-                                companyInBST.getPerson().getAccount(),
-                                participant.getPerson().getAccount(),
-                                minAmount.multiply(participant.getPerson().getTaxTypePaid().getBonusPercentsInGroupBonus())
-                                        .divide(BIG_DECIMAL_100, FLOOR).setScale(2, FLOOR),
-                                TransactionType.Group_Bonus);
-                    }
+                    List<Person> getAllChildren = em.createQuery("select person from Person person where person.parent =: pParent and person.registrationDate between : nowDate and : minusOneMonthDate", Person.class)
+                            .setParameter("pParent", participant)
+                            .setParameter("nowDate", LocalDate.now())
+                            .setParameter("minusOneMonthDate", LocalDate.now().minusMonths(1L))
+                            .getResultList();
+
+                    //check if children are more than two
+                    if (getAllChildren.size() < 2) return;
+
+                    BigDecimal minAmount = participant.getLeftBox().getValue().min(participant.getRightBox().getValue());
+
+                    bankService.transferMoney(
+                            companyInBST.getPerson().getAccount(),
+                            participant.getPerson().getAccount(),
+                            minAmount.multiply(participant.getPerson().getTaxTypePaid().getBonusPercentsInGroupBonus())
+                                    .divide(BIG_DECIMAL_100, FLOOR).setScale(2, FLOOR),
+                            TransactionType.Group_Bonus);
                 });
     }
 

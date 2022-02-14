@@ -25,6 +25,7 @@ public class BinaryTreePerson extends _BaseEntity {
 
     AbstractMap.SimpleEntry<Box, BigDecimal> rightBox = new AbstractMap.SimpleEntry<>(Box.Right, BigDecimal.ZERO);
 
+
     public Person getPerson() {
         return person;
     }
