@@ -6,7 +6,6 @@ public class Calculator {
     public static boolean isPositive(BigDecimal number) {
         return number.compareTo(BigDecimal.ZERO) > 0;
     }
-
     public static boolean isNegative(BigDecimal number) {
         return number.compareTo(BigDecimal.ZERO) < 0;
     }

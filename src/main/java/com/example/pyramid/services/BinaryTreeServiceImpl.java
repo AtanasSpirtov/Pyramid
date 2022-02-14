@@ -61,6 +61,10 @@ public class BinaryTreeServiceImpl extends _BaseService implements BinaryTreeSer
 
     @Override
     public void processGroupBonus() {
+        BinaryTreePerson companyInBST = em.createQuery(
+                        "select bstPerson from BinaryTreePerson bstPerson where bstPerson.id = 1", BinaryTreePerson.class)
+                .getSingleResult();
+
         em.createQuery("select bstPerson from BinaryTreePerson bstPerson", BinaryTreePerson.class)
                 .getResultList().parallelStream().forEach(participant -> {
 
@@ -68,10 +72,6 @@ public class BinaryTreeServiceImpl extends _BaseService implements BinaryTreeSer
                     if (LocalDate.now().isBefore(participant.getPerson().getTaxExpirationDate())) {
 
                         BigDecimal minAmount = participant.getLeftBox().getValue().min(participant.getRightBox().getValue());
-
-                        BinaryTreePerson companyInBST = em.createQuery(
-                                        "select bstPerson from BinaryTreePerson bstPerson where bstPerson.person.account.id = 1", BinaryTreePerson.class)
-                                .getSingleResult();
 
                         bankService.transferMoney(
                                 companyInBST.getPerson().getAccount(),
