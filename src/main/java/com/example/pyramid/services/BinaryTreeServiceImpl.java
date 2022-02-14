@@ -38,7 +38,8 @@ public class BinaryTreeServiceImpl extends _BaseService implements BinaryTreeSer
 
     @Override
     public void addAmount(Person person, BigDecimal amount) {
-        if (Calculator.isNegative(amount)) throw new RuntimeException("amount cannot be negative");
+        if (Calculator.isNegative(amount)) throw new RuntimeException("Amount cannot be negative");
+        if (Objects.isNull(person)) throw new RuntimeException("Person must exist");
 
         BinaryTreePerson bstPerson = em.createQuery
                         ("select bstPerson from BinaryTreePerson bstPerson where bstPerson.person =: pPerson"
@@ -63,23 +64,23 @@ public class BinaryTreeServiceImpl extends _BaseService implements BinaryTreeSer
         em.createQuery("select bstPerson from BinaryTreePerson bstPerson", BinaryTreePerson.class)
                 .getResultList().parallelStream().forEach(participant -> {
 
-            //check if tax is paid
-            if(LocalDate.now().isBefore(participant.getPerson().getTaxExpirationDate())) {
+                    //check if tax is paid
+                    if (LocalDate.now().isBefore(participant.getPerson().getTaxExpirationDate())) {
 
-                BigDecimal minAmount = participant.getLeftBox().getValue().min(participant.getRightBox().getValue());
+                        BigDecimal minAmount = participant.getLeftBox().getValue().min(participant.getRightBox().getValue());
 
-                BinaryTreePerson companyInBST = em.createQuery(
-                                "select bstPerson from BinaryTreePerson bstPerson where bstPerson.person.account.id = 1", BinaryTreePerson.class)
-                        .getSingleResult();
+                        BinaryTreePerson companyInBST = em.createQuery(
+                                        "select bstPerson from BinaryTreePerson bstPerson where bstPerson.person.account.id = 1", BinaryTreePerson.class)
+                                .getSingleResult();
 
-                bankService.transferMoney(
-                        companyInBST.getPerson().getAccount(),
-                        participant.getPerson().getAccount(),
-                        minAmount.multiply(participant.getPerson().getTaxTypePaid().getBonusPercentsInGroupBonus())
-                                .divide(BIG_DECIMAL_100, FLOOR).setScale(2, FLOOR),
-                        TransactionType.Group_Bonus);
-            }
-        });
+                        bankService.transferMoney(
+                                companyInBST.getPerson().getAccount(),
+                                participant.getPerson().getAccount(),
+                                minAmount.multiply(participant.getPerson().getTaxTypePaid().getBonusPercentsInGroupBonus())
+                                        .divide(BIG_DECIMAL_100, FLOOR).setScale(2, FLOOR),
+                                TransactionType.Group_Bonus);
+                    }
+                });
     }
 
     private static Stream<BinaryTreePerson> parentChain(BinaryTreePerson person) {

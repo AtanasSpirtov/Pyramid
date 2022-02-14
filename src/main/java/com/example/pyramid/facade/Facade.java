@@ -10,14 +10,9 @@ import com.example.pyramid.services._BaseService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.scheduling.support.CronTrigger;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-
-import java.time.LocalDate;
-import java.time.ZoneId;
-import java.util.Timer;
 
 @Service
 @EnableScheduling

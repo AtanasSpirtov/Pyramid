@@ -45,7 +45,7 @@ public class TaxServiceImpl extends _BaseService implements TaxService {
         person.setTaxExpirationDate(LocalDate.now().plusMonths(1L));
 
         Person company = em.find(Person.class, COMPANY_ID);
-        Objects.requireNonNull(company, "Goljam fal: company is not found!");
+        Objects.requireNonNull(company, "Company is not found!");
 
         //return money to company
         BigDecimal taxAmount = tax.getTaxAmount().setScale(2 , FLOOR);
