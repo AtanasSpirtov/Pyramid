@@ -7,8 +7,10 @@ import com.example.pyramid.model.enums.bstEnums.PositionInBinaryTree;
 import com.example.pyramid.services.api.BankService;
 import com.example.pyramid.services.api.BinaryTreeService;
 import com.example.pyramid.utils.Calculator;
+import com.example.pyramid.utils.Properties;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -20,17 +22,18 @@ import java.util.stream.Stream;
 import static java.math.RoundingMode.FLOOR;
 
 @Service
+@Transactional
 public class BinaryTreeServiceImpl extends _BaseService implements BinaryTreeService {
-
-    private final BigDecimal BIG_DECIMAL_100 = BigDecimal.valueOf(100);
-    private final BigDecimal BIG_DECIMAL_10000 = BigDecimal.valueOf(10000);
-
 
     @Autowired
     BankService bankService;
 
     @Override
     public void positionInBinaryTree(Person person, BinaryTreePerson parent, PositionInBinaryTree position) {
+        Objects.requireNonNull(person , "function parameter person cannot be null");
+        Objects.requireNonNull(parent , "function parameter parent cannot be null");
+        Objects.requireNonNull(person , "function parameter position cannot be null");
+
         BinaryTreePerson bstPerson = new BinaryTreePerson();
         bstPerson.setPerson(person);
         bstPerson.setParent(parent);
@@ -71,13 +74,14 @@ public class BinaryTreeServiceImpl extends _BaseService implements BinaryTreeSer
                 .getResultList().parallelStream().forEach(participant -> {
 
                     //check if tax is paid
-                    if (LocalDate.now().isBefore(participant.getPerson().getTaxExpirationDate())) return;
+                    if (LocalDate.now().isAfter(participant.getPerson().getTaxExpirationDate())) return;
 
                     //check if condition for min money is completed
-                    if (participant.getRightBox().getValue().add(participant.getLeftBox().getValue()).compareTo(BIG_DECIMAL_10000) < 0)
+                    if (participant.getRightBox().getValue().add(participant.getLeftBox().getValue()).compareTo(Properties.BIG_DECIMAL_10000) < 0)
                         return;
 
-                    List<Person> getAllChildren = em.createQuery("select person from Person person where person.parent =: pParent and person.registrationDate between : nowDate and : minusOneMonthDate", Person.class)
+                    List<Person> getAllChildren = em.createQuery("select person from Person person where person.parent =: pParent " +
+                                    "and person.registrationDate between : nowDate and : minusOneMonthDate", Person.class)
                             .setParameter("pParent", participant)
                             .setParameter("nowDate", LocalDate.now())
                             .setParameter("minusOneMonthDate", LocalDate.now().minusMonths(1L))
@@ -92,7 +96,7 @@ public class BinaryTreeServiceImpl extends _BaseService implements BinaryTreeSer
                             companyInBST.getPerson().getAccount(),
                             participant.getPerson().getAccount(),
                             minAmount.multiply(participant.getPerson().getTaxTypePaid().getBonusPercentsInGroupBonus())
-                                    .divide(BIG_DECIMAL_100, FLOOR).setScale(2, FLOOR),
+                                    .divide(Properties.BIG_DECIMAL_100, FLOOR).setScale(2, FLOOR),
                             TransactionType.Group_Bonus);
                 });
     }

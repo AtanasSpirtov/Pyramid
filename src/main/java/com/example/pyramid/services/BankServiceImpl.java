@@ -6,6 +6,7 @@ import com.example.pyramid.model.enums.OperationType;
 import com.example.pyramid.model.enums.TransactionType;
 import com.example.pyramid.services.api.BankService;
 import com.example.pyramid.utils.Calculator;
+import com.example.pyramid.utils.Properties;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -17,8 +18,6 @@ import java.util.Objects;
 @Service
 public class BankServiceImpl extends _BaseService implements BankService {
 
-    private static final Long companyClearingAccount = -1L;
-
     @Override
     @Transactional
     public synchronized void transferMoney(BankAccount source, BankAccount recipient, BigDecimal amount , TransactionType transactionType){
@@ -26,13 +25,13 @@ public class BankServiceImpl extends _BaseService implements BankService {
         em.lock(recipient , LockModeType.PESSIMISTIC_WRITE);
 
         if (Calculator.isNegative(amount)) {
-            throw new RuntimeException("amount cannot be negative");
+            throw new RuntimeException("parameter amount cannot be negative");
         }
 
-        Objects.requireNonNull(source, "not existing user");
-        Objects.requireNonNull(recipient, "not existing user");
+        Objects.requireNonNull(source, "parameter source cannot be null");
+        Objects.requireNonNull(recipient, "parameter recipient cannot be null");
 
-        if (!source.getId().equals(companyClearingAccount)) {
+        if (!source.getId().equals(Properties.companyClearingAccount)) {
             if (Calculator.isNegative(source.getBalance())) {
                 throw new RuntimeException("balance cannot be negative");
             }

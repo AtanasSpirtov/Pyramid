@@ -21,4 +21,5 @@ public class Calculator {
     public static BigDecimal addToFirst(BigDecimal numberOne, BigDecimal numberTwo) {
         return numberOne.add(numberTwo);
     }
+
 }

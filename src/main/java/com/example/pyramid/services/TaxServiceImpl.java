@@ -5,6 +5,7 @@ import com.example.pyramid.model.Tax;
 import com.example.pyramid.model.enums.TransactionType;
 import com.example.pyramid.services.api.BankService;
 import com.example.pyramid.services.api.TaxService;
+import com.example.pyramid.utils.Properties;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,15 +21,6 @@ import static java.math.RoundingMode.*;
 @Service
 public class TaxServiceImpl extends _BaseService implements TaxService {
 
-    private final BigDecimal GRAND_GRAND_FATHER_BONUS = BigDecimal.valueOf(2);
-
-    private final BigDecimal GRAND_FATHER_BONUS = BigDecimal.valueOf(3);
-
-    private final BigDecimal FATHER_BONUS = BigDecimal.valueOf(5);
-
-    private static final BigDecimal BIG_DECIMAL_100 = BigDecimal.valueOf(100);
-
-    private static final Long COMPANY_ID = 1L;
 
     @Autowired
     BankService bankService;
@@ -44,7 +36,7 @@ public class TaxServiceImpl extends _BaseService implements TaxService {
         person.setTaxTypePaid(tax);
         person.setTaxExpirationDate(LocalDate.now().plusMonths(1L));
 
-        Person company = em.find(Person.class, COMPANY_ID);
+        Person company = em.find(Person.class, Properties.COMPANY_ID);
         Objects.requireNonNull(company, "Company is not found!");
 
         //return money to company
@@ -54,8 +46,8 @@ public class TaxServiceImpl extends _BaseService implements TaxService {
         // process direct bonus
         final Consumer<Person> personConsumer = parents -> {
             Iterator<BigDecimal> taxPercents =
-                    Arrays.asList(GRAND_GRAND_FATHER_BONUS , GRAND_FATHER_BONUS , FATHER_BONUS).iterator();
-            BigDecimal bonus = taxAmount.multiply(taxPercents.next()).divide(BIG_DECIMAL_100 , FLOOR).setScale(2, FLOOR);
+                    Arrays.asList(Properties.GRAND_GRAND_FATHER_BONUS , Properties.GRAND_FATHER_BONUS , Properties.FATHER_BONUS).iterator();
+            BigDecimal bonus = taxAmount.multiply(taxPercents.next()).divide(Properties.BIG_DECIMAL_100 , FLOOR).setScale(2, FLOOR);
             bankService.transferMoney(company.getAccount(), parents.getAccount(), bonus, TransactionType.DirectBonus);
         };
 
