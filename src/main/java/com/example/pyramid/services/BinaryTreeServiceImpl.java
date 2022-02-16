@@ -111,6 +111,6 @@ public class BinaryTreeServiceImpl extends _BaseService implements BinaryTreeSer
                 ? Stream.concat(Stream.of(person.getParent()), parentChain(person.getParent())) : Stream.empty();
     }
     private static boolean checkRegistrationPeople(List<BinaryTreePerson> registrationPeople, PositionInBinaryTree position) {
-        return Objects.isNull(registrationPeople.parallelStream().filter(c -> c.getPosition().equals(position)).findFirst());
+        return registrationPeople.parallelStream().anyMatch(c -> c.getPosition().equals(position));
     }
 }
