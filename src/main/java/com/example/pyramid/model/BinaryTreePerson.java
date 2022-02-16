@@ -1,11 +1,9 @@
 package com.example.pyramid.model;
 
-import com.example.pyramid.model.enums.bstEnums.Box;
 import com.example.pyramid.model.enums.bstEnums.PositionInBinaryTree;
 
 import javax.persistence.*;
 import java.math.BigDecimal;
-import java.util.AbstractMap;
 
 @Entity
 public class BinaryTreePerson extends _BaseEntity {
@@ -19,12 +17,14 @@ public class BinaryTreePerson extends _BaseEntity {
     @Enumerated(EnumType.STRING)
     private PositionInBinaryTree position;
 
-    AbstractMap.SimpleEntry<Box, BigDecimal> leftBox = new AbstractMap.SimpleEntry<>(Box.Left, BigDecimal.ZERO);
+    BigDecimal leftBox = new BigDecimal("0.00");
 
-    AbstractMap.SimpleEntry<Box, BigDecimal> midBox = new AbstractMap.SimpleEntry<>(Box.Mid, BigDecimal.ZERO);
+    BigDecimal midBox = new BigDecimal("0.00");
 
-    AbstractMap.SimpleEntry<Box, BigDecimal> rightBox = new AbstractMap.SimpleEntry<>(Box.Right, BigDecimal.ZERO);
+    BigDecimal rightBox = new BigDecimal("0.00");
 
+    @OneToOne
+    BinaryTreePerson registrant;
 
     public Person getPerson() {
         return person;
@@ -50,27 +50,35 @@ public class BinaryTreePerson extends _BaseEntity {
         this.position = position;
     }
 
-    public AbstractMap.SimpleEntry<Box, BigDecimal> getLeftBox() {
+    public BigDecimal getLeftBox() {
         return leftBox;
     }
 
-    public void setLeftBox(AbstractMap.SimpleEntry<Box, BigDecimal> leftBox) {
+    public void setLeftBox(BigDecimal leftBox) {
         this.leftBox = leftBox;
     }
 
-    public AbstractMap.SimpleEntry<Box, BigDecimal> getMidBox() {
+    public BigDecimal getMidBox() {
         return midBox;
     }
 
-    public void setMidBox(AbstractMap.SimpleEntry<Box, BigDecimal> midBox) {
+    public void setMidBox(BigDecimal midBox) {
         this.midBox = midBox;
     }
 
-    public AbstractMap.SimpleEntry<Box, BigDecimal> getRightBox() {
+    public BigDecimal getRightBox() {
         return rightBox;
     }
 
-    public void setRightBox(AbstractMap.SimpleEntry<Box, BigDecimal> rightBox) {
+    public void setRightBox(BigDecimal rightBox) {
         this.rightBox = rightBox;
+    }
+
+    public BinaryTreePerson getRegistrant() {
+        return registrant;
+    }
+
+    public void setRegistrant(BinaryTreePerson registrant) {
+        this.registrant = registrant;
     }
 }

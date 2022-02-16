@@ -51,15 +51,15 @@ public class BinaryTreeServiceImpl extends _BaseService implements BinaryTreeSer
                                 , BinaryTreePerson.class)
                 .setParameter("pPerson", person).getSingleResult();
 
-        bstPerson.getMidBox().setValue(bstPerson.getMidBox().getValue().add(amount));
+        bstPerson.setMidBox(bstPerson.getMidBox().add(amount));
 
         AtomicReference<PositionInBinaryTree> initialPosition = new AtomicReference<>(bstPerson.getPosition());
 
         parentChain(bstPerson).forEach(bstParent -> {
             if (initialPosition.get().equals(PositionInBinaryTree.Left))
-                bstParent.getLeftBox().setValue(bstParent.getLeftBox().getValue().add(amount));
+                bstParent.setLeftBox(bstParent.getLeftBox().add(amount));
             else if (initialPosition.get().equals(PositionInBinaryTree.Right))
-                bstParent.getRightBox().setValue(bstParent.getRightBox().getValue().add(amount));
+                bstParent.setRightBox(bstParent.getRightBox().add(amount));
             initialPosition.set(bstParent.getPosition());
         });
     }
@@ -77,20 +77,25 @@ public class BinaryTreeServiceImpl extends _BaseService implements BinaryTreeSer
                     if (LocalDate.now().isAfter(participant.getPerson().getTaxExpirationDate())) return;
 
                     //check if condition for min money is completed
-                    if (participant.getRightBox().getValue().add(participant.getLeftBox().getValue()).compareTo(Properties.BIG_DECIMAL_10000) < 0)
+                    if (participant.getRightBox().add(participant.getLeftBox()).compareTo(Properties.BIG_DECIMAL_10000) < 0)
                         return;
 
-                    List<Person> getAllChildren = em.createQuery("select person from Person person where person.parent =: pParent " +
-                                    "and person.registrationDate between : nowDate and : minusOneMonthDate", Person.class)
-                            .setParameter("pParent", participant)
+                    List<BinaryTreePerson> registeredPeople = em.createQuery(
+                                    "select bstPerson from BinaryTreePerson bstPerson where bstPerson.registrant =: pRegistrant " +
+                                            "and bstPerson.person.registrationDate between : nowDate and : minusOneMonthDate",
+                                    BinaryTreePerson.class)
+                            .setParameter("pRegistrant", participant)
                             .setParameter("nowDate", LocalDate.now())
-                            .setParameter("minusOneMonthDate", LocalDate.now().minusMonths(1L))
-                            .getResultList();
+                            .setParameter("minusOneMonthDate", LocalDate.now().minusMonths(1L)).getResultList();
 
                     //check if children are more than two
-                    if (getAllChildren.size() < 2) return;
+                    if (registeredPeople.size() < 2) return;
 
-                    BigDecimal minAmount = participant.getLeftBox().getValue().min(participant.getRightBox().getValue());
+                    if ((checkRegistrationPeople(registeredPeople, PositionInBinaryTree.Left)
+                            || checkRegistrationPeople(registeredPeople, PositionInBinaryTree.Right)))
+                        return;
+
+                    BigDecimal minAmount = participant.getLeftBox().min(participant.getRightBox());
 
                     bankService.transferMoney(
                             companyInBST.getPerson().getAccount(),
@@ -104,5 +109,8 @@ public class BinaryTreeServiceImpl extends _BaseService implements BinaryTreeSer
     private static Stream<BinaryTreePerson> parentChain(BinaryTreePerson person) {
         return Objects.nonNull(person.getParent())
                 ? Stream.concat(Stream.of(person.getParent()), parentChain(person.getParent())) : Stream.empty();
+    }
+    private static boolean checkRegistrationPeople(List<BinaryTreePerson> registrationPeople, PositionInBinaryTree position) {
+        return Objects.isNull(registrationPeople.parallelStream().filter(c -> c.getPosition().equals(position)).findFirst());
     }
 }
