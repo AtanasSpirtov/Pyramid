@@ -1,6 +1,7 @@
 package com.example.pyramid.model;
 
 import javax.persistence.*;
+import java.math.BigDecimal;
 import java.time.LocalDate;
 
 @Entity
@@ -19,17 +20,20 @@ public class Person extends _BaseEntity {
     @OneToOne
     private Tax taxTypePaid;
 
-    LocalDate taxExpirationDate;
+    private LocalDate taxExpirationDate;
 
-    LocalDate registrationDate;
+    private LocalDate registrationDate;
 
-    public Person(String name, Person parent, BankAccount account , Tax taxTypePaid, LocalDate taxExpirationDate , LocalDate registrationDate) {
+    private BigDecimal groupBonus = BigDecimal.valueOf(0);
+
+    public Person(String name, Person parent, BankAccount account , Tax taxTypePaid, LocalDate taxExpirationDate , LocalDate registrationDate , BigDecimal groupBonus) {
         this.name = name;
         this.parent = parent;
         this.account = account;
         this.taxTypePaid = taxTypePaid;
         this.taxExpirationDate = taxExpirationDate;
         this.registrationDate = registrationDate;
+        this.groupBonus = groupBonus;
     }
 
     public Person() {}
@@ -81,6 +85,14 @@ public class Person extends _BaseEntity {
         this.registrationDate = registrationDate;
     }
 
+    public BigDecimal getGroupBonus() {
+        return groupBonus;
+    }
+
+    public void setGroupBonus(BigDecimal groupBonus) {
+        this.groupBonus = groupBonus;
+    }
+
     public static PersonBuilder builder() {
         return new PersonBuilder();
     }
@@ -93,6 +105,7 @@ public class Person extends _BaseEntity {
         private Tax taxTypePaid;
         private LocalDate taxExpirationDate;
         private LocalDate registrationDate;
+        private BigDecimal groupBonus;
 
         public PersonBuilder setName(final String name) {
             this.name = name;
@@ -124,8 +137,13 @@ public class Person extends _BaseEntity {
             return this;
         }
 
+        public PersonBuilder setGroupBonus(BigDecimal groupBonus) {
+            this.groupBonus = groupBonus;
+            return this;
+        }
+
         public Person build() {
-            return new Person(name, parent, bankAccount , taxTypePaid, taxExpirationDate , registrationDate);
+            return new Person(name, parent, bankAccount , taxTypePaid, taxExpirationDate , registrationDate , groupBonus);
         }
     }
 }

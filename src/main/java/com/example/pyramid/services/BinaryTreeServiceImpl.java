@@ -97,11 +97,13 @@ public class BinaryTreeServiceImpl extends _BaseService implements BinaryTreeSer
 
                     BigDecimal minAmount = participant.getLeftBox().min(participant.getRightBox());
 
+                    participant.getPerson().setGroupBonus(minAmount.multiply(participant.getPerson().getTaxTypePaid().getBonusPercentsInGroupBonus())
+                            .divide(Properties.BIG_DECIMAL_100, FLOOR).setScale(2, FLOOR));
+
                     bankService.transferMoney(
                             companyInBST.getPerson().getAccount(),
                             participant.getPerson().getAccount(),
-                            minAmount.multiply(participant.getPerson().getTaxTypePaid().getBonusPercentsInGroupBonus())
-                                    .divide(Properties.BIG_DECIMAL_100, FLOOR).setScale(2, FLOOR),
+                            participant.getPerson().getGroupBonus(),
                             TransactionType.Group_Bonus);
                 });
     }
@@ -111,6 +113,6 @@ public class BinaryTreeServiceImpl extends _BaseService implements BinaryTreeSer
                 ? Stream.concat(Stream.of(person.getParent()), parentChain(person.getParent())) : Stream.empty();
     }
     private static boolean checkRegistrationPeople(List<BinaryTreePerson> registrationPeople, PositionInBinaryTree position) {
-        return registrationPeople.parallelStream().anyMatch(c -> c.getPosition().equals(position));
+        return registrationPeople.parallelStream().noneMatch(c -> c.getPosition().equals(position));
     }
 }

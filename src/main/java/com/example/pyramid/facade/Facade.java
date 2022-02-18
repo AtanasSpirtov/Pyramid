@@ -1,10 +1,8 @@
 package com.example.pyramid.facade;
 
-import com.example.pyramid.model.BinaryTreePerson;
 import com.example.pyramid.model.Person;
-import com.example.pyramid.services.api.BankService;
 import com.example.pyramid.services.api.BinaryTreeService;
-import com.example.pyramid.services.api.RegisterService;
+import com.example.pyramid.services.api.RegisterTreeService;
 import com.example.pyramid.services.api.TaxService;
 import com.example.pyramid.services._BaseService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,17 +20,17 @@ public class Facade extends _BaseService {
     TaxService taxService;
 
     @Autowired
-    RegisterService registerService;
+    RegisterTreeService registerTreeService;
 
     @Autowired
     BinaryTreeService bstService;
 
     public void registerUser(Person person, Long parentId) {
-        registerService.registerUser(person, parentId);
+        registerTreeService.registerUser(person, parentId);
     }
 
     public void createAccount(Person person, BigDecimal amount) throws Exception {
-        registerService.createBankAccount(person, amount);
+        registerTreeService.createBankAccount(person, amount);
         taxService.payTax(person, amount);
     }
 

@@ -17,14 +17,14 @@ public class BinaryTreePerson extends _BaseEntity {
     @Enumerated(EnumType.STRING)
     private PositionInBinaryTree position;
 
-    BigDecimal leftBox = new BigDecimal("0.00");
+    private BigDecimal leftBox = BigDecimal.valueOf(0);
 
-    BigDecimal midBox = new BigDecimal("0.00");
+    private BigDecimal midBox = BigDecimal.valueOf(0);
 
-    BigDecimal rightBox = new BigDecimal("0.00");
+    private BigDecimal rightBox = BigDecimal.valueOf(0);
 
     @OneToOne
-    BinaryTreePerson registrant;
+    private BinaryTreePerson registrant;
 
     public Person getPerson() {
         return person;
@@ -81,4 +81,5 @@ public class BinaryTreePerson extends _BaseEntity {
     public void setRegistrant(BinaryTreePerson registrant) {
         this.registrant = registrant;
     }
+
 }

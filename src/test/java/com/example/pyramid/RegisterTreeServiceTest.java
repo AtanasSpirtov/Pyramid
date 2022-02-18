@@ -1,9 +1,8 @@
 package com.example.pyramid;
 
-import com.example.pyramid.DTO.PersonDTO;
 import com.example.pyramid.model.BankAccount;
 import com.example.pyramid.model.Person;
-import com.example.pyramid.services.api.RegisterService;
+import com.example.pyramid.services.api.RegisterTreeService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -18,13 +17,13 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 @SpringBootTest
 @Transactional
-public class RegisterServiceTest {
+public class RegisterTreeServiceTest {
 
     @PersistenceContext
     private EntityManager em;
 
     @Autowired
-    RegisterService registerService;
+    RegisterTreeService registerTreeService;
 
     @Test
     public void registerUserAndBankAccount() {
@@ -34,7 +33,7 @@ public class RegisterServiceTest {
         person.setName("testUserCreation");
         final Person parent = em.find(Person.class , 2L);
 
-        registerService.registerUser(person , parent.getId());
+        registerTreeService.registerUser(person , parent.getId());
 
         Person entity = em.createQuery("select p from Person p where p.name =: testName" , Person.class)
                 .setParameter("testName", "testUserCreation")
@@ -43,7 +42,7 @@ public class RegisterServiceTest {
         assertThat(entity).isNotNull();
 
         //testing creation of bank account
-        registerService.createBankAccount(entity , BigDecimal.valueOf(1000000000));
+        registerTreeService.createBankAccount(entity , BigDecimal.valueOf(1000000000));
 
         BankAccount account = em.createQuery("select b from BankAccount b where b.balance = 1000000000" , BankAccount.class)
                 .getSingleResult();
