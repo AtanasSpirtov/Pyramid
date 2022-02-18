@@ -5,6 +5,7 @@ import com.example.pyramid.model.Tax;
 import com.example.pyramid.model.enums.TransactionType;
 import com.example.pyramid.services.api.BankService;
 import com.example.pyramid.services.api.TaxService;
+import com.example.pyramid.utils.Calculator;
 import com.example.pyramid.utils.Properties;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -47,7 +48,7 @@ public class TaxServiceImpl extends _BaseService implements TaxService {
         final Consumer<Person> personConsumer = parents -> {
             Iterator<BigDecimal> taxPercents =
                     Arrays.asList(Properties.GRAND_GRAND_FATHER_BONUS , Properties.GRAND_FATHER_BONUS , Properties.FATHER_BONUS).iterator();
-            BigDecimal bonus = taxAmount.multiply(taxPercents.next()).divide(Properties.BIG_DECIMAL_100 , FLOOR).setScale(2, FLOOR);
+            BigDecimal bonus = Calculator.findPercent(taxPercents.next() , taxAmount);
             bankService.transferMoney(company.getAccount(), parents.getAccount(), bonus, TransactionType.DirectBonus);
         };
 

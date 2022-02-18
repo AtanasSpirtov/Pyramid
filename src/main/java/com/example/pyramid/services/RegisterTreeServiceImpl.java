@@ -46,14 +46,14 @@ public class RegisterTreeServiceImpl extends _BaseService implements RegisterTre
 
     @Override
     public void processAllPartnerBonuses() {
-        em.createQuery("select persons from Person persons" , Person.class)
+        em.createQuery("select persons from Person persons", Person.class)
                 .getResultList().forEach(this::processPartnerBonus);
     }
 
 
     private void processPartnerBonus(Person person) {
 
-        Objects.requireNonNull(person , "cannot process partner bonus on null person");
+        Objects.requireNonNull(person, "cannot process partner bonus on null person");
 
         //finding all direct children of person that are minimum rank 3
         List<Person> childrenMinRankThree = em.createQuery(
@@ -79,7 +79,8 @@ public class RegisterTreeServiceImpl extends _BaseService implements RegisterTre
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
 
         //process partner bonus amount
-        bankService.transferMoney(em.find(Person.class ,Properties.COMPANY_ID).getAccount(),
+        bankService.transferMoney(
+                em.find(Person.class, Properties.COMPANY_ID).getAccount(),
                 person.getAccount(),
                 finalPartnerBonus,
                 TransactionType.Partner_Bonus);

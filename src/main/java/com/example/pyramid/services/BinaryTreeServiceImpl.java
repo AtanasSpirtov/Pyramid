@@ -77,7 +77,7 @@ public class BinaryTreeServiceImpl extends _BaseService implements BinaryTreeSer
                     if (LocalDate.now().isAfter(participant.getPerson().getTaxExpirationDate())) return;
 
                     //check if condition for min money is completed
-                    if (participant.getRightBox().add(participant.getLeftBox()).compareTo(Properties.BIG_DECIMAL_10000) < 0)
+                    if (Calculator.addToFirst(participant.getLeftBox() , participant.getRightBox()).compareTo(Properties.BIG_DECIMAL_10000) < 0)
                         return;
 
                     List<BinaryTreePerson> registeredPeople = em.createQuery(
@@ -97,8 +97,8 @@ public class BinaryTreeServiceImpl extends _BaseService implements BinaryTreeSer
 
                     BigDecimal minAmount = participant.getLeftBox().min(participant.getRightBox());
 
-                    participant.getPerson().setGroupBonus(minAmount.multiply(participant.getPerson().getTaxTypePaid().getBonusPercentsInGroupBonus())
-                            .divide(Properties.BIG_DECIMAL_100, FLOOR).setScale(2, FLOOR));
+                    participant.getPerson().setGroupBonus(
+                            Calculator.findPercent(participant.getPerson().getTaxTypePaid().getBonusPercentsInGroupBonus() , minAmount));
 
                     bankService.transferMoney(
                             companyInBST.getPerson().getAccount(),

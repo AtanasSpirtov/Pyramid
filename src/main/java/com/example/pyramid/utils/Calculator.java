@@ -16,9 +16,7 @@ public class Calculator {
         return numberOne.compareTo(numberTwo);
     }
 
-    public static BigDecimal subtractFromFirst(BigDecimal numberOne, BigDecimal numberTwo) {
-        return numberOne.subtract(numberTwo);
-    }
+    public static BigDecimal subtractFromFirst(BigDecimal numberOne, BigDecimal numberTwo) {return numberOne.subtract(numberTwo);}
 
     public static BigDecimal addToFirst(BigDecimal numberOne, BigDecimal numberTwo) {
         return numberOne.add(numberTwo);
