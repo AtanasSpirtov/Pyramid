@@ -1,4 +1,4 @@
-package com.example.pyramid.DTO;
+package com.example.pyramid.dto;
 
 public class PersonDTO {
     String name;
