@@ -16,9 +16,6 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
-
-import static java.math.RoundingMode.*;
 
 @Service
 public class RegisterTreeServiceImpl extends _BaseService implements RegisterTreeService {
@@ -60,7 +57,7 @@ public class RegisterTreeServiceImpl extends _BaseService implements RegisterTre
                         "select children from Person children where children.parent =: pPersonForBonus", Person.class)
                 .setParameter("pPersonForBonus", person).getResultList().stream()
                 .filter(child -> child.getGroupBonus().compareTo(Properties.BIG_DECIMAL_10000) >= 0)
-                .collect(Collectors.toList());
+                .toList();
 
         //finding rank of person
         PartnerRank rankOfPerson = em.createQuery(
@@ -93,7 +90,7 @@ public class RegisterTreeServiceImpl extends _BaseService implements RegisterTre
                 .setParameter("pPerson", person).getResultList();
 
         //recursion bottom condition
-        if (children.size() != 0 && levelCounter <= 7)
+        if (!children.isEmpty() && levelCounter <= 7)
             children.forEach(p -> {
 
                 //check if person has groupBonus
@@ -102,12 +99,20 @@ public class RegisterTreeServiceImpl extends _BaseService implements RegisterTre
                     //getting from group bonus of every child depending on persons rank and children level
                     switch (levelCounter) {
                         case 1: amountFromEveryChild.add(Calculator.findPercent(rankOfPersonForBonus.getGeneration1(), p.getGroupBonus()));
+                        break;
                         case 2: amountFromEveryChild.add(Calculator.findPercent(rankOfPersonForBonus.getGeneration2(), p.getGroupBonus()));
+                        break;
                         case 3: amountFromEveryChild.add(Calculator.findPercent(rankOfPersonForBonus.getGeneration3(), p.getGroupBonus()));
+                        break;
                         case 4: amountFromEveryChild.add(Calculator.findPercent(rankOfPersonForBonus.getGeneration4(), p.getGroupBonus()));
+                        break;
                         case 5: amountFromEveryChild.add(Calculator.findPercent(rankOfPersonForBonus.getGeneration5(), p.getGroupBonus()));
+                        break;
                         case 6: amountFromEveryChild.add(Calculator.findPercent(rankOfPersonForBonus.getGeneration6(), p.getGroupBonus()));
+                        break;
                         case 7: amountFromEveryChild.add(Calculator.findPercent(rankOfPersonForBonus.getGeneration7(), p.getGroupBonus()));
+                        break;
+                        default: throw new RuntimeException("stana bela");
                     }
                     p.setGroupBonus(BigDecimal.ZERO);
                 }

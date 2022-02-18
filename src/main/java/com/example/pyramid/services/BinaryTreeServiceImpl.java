@@ -19,8 +19,6 @@ import java.util.Objects;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Stream;
 
-import static java.math.RoundingMode.FLOOR;
-
 @Service
 @Transactional
 public class BinaryTreeServiceImpl extends _BaseService implements BinaryTreeService {
