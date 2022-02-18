@@ -79,7 +79,7 @@ public class RegisterTreeServiceImpl extends _BaseService implements RegisterTre
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
 
         //process partner bonus amount
-        bankService.transferMoney(em.find(Person.class ,1L).getAccount(),
+        bankService.transferMoney(em.find(Person.class ,Properties.COMPANY_ID).getAccount(),
                 person.getAccount(),
                 finalPartnerBonus,
                 TransactionType.Partner_Bonus);

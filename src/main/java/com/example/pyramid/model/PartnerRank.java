@@ -1,5 +1,6 @@
 package com.example.pyramid.model;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import java.math.BigDecimal;
 
@@ -14,18 +15,25 @@ public class PartnerRank extends _BaseEntity{
 
     private int count;
 
+    @Column(name = "generation_1")
     private BigDecimal generation1;
 
+    @Column(name = "generation_2")
     private BigDecimal generation2;
 
+    @Column(name = "generation_3")
     private BigDecimal generation3;
 
+    @Column(name = "generation_4")
     private BigDecimal generation4;
 
+    @Column(name = "generation_5")
     private BigDecimal generation5;
 
+    @Column(name = "generation_6")
     private BigDecimal generation6;
 
+    @Column(name = "generation_7")
     private BigDecimal generation7;
 
     public String getRank() {
