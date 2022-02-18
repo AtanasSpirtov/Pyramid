@@ -17,7 +17,7 @@ import java.math.BigDecimal;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 @SpringBootTest
-public class BankServiceTest {
+class BankServiceTest {
 
     @Autowired
     BankService bankService;

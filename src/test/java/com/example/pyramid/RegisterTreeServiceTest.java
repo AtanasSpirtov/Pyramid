@@ -17,7 +17,7 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 @SpringBootTest
 @Transactional
-public class RegisterTreeServiceTest {
+class RegisterTreeServiceTest {
 
     @PersistenceContext
     private EntityManager em;
@@ -26,7 +26,7 @@ public class RegisterTreeServiceTest {
     RegisterTreeService registerTreeService;
 
     @Test
-    public void registerUserAndBankAccount() {
+    void registerUserAndBankAccount() {
 
         //testing creation of user
         final Person person = new Person();
