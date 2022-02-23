@@ -9,7 +9,7 @@ public class PartnerRank extends _BaseEntity{
 
     private String rank;
 
-    private BigDecimal threshold;
+    private BigDecimal minGroupBonus;
 
     private int lineId;
 
@@ -40,8 +40,8 @@ public class PartnerRank extends _BaseEntity{
         return rank;
     }
 
-    public BigDecimal getThreshold() {
-        return threshold;
+    public BigDecimal getMinGroupBonus() {
+        return minGroupBonus;
     }
 
     public int getLineId() {

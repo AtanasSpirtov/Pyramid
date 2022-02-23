@@ -7,7 +7,7 @@ import com.example.pyramid.model.enums.bstEnums.PositionInBinaryTree;
 import java.math.BigDecimal;
 
 public interface BinaryTreeService {
-    void positionInBinaryTree(Person person, BinaryTreePerson parent, PositionInBinaryTree position);
+    void positionInBinaryTree(Person person, BinaryTreePerson parent, PositionInBinaryTree position , BinaryTreePerson registrator);
 
     void addAmount(Person person, BigDecimal amount);
 

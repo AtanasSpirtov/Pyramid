@@ -24,7 +24,7 @@ public class Person extends _BaseEntity {
 
     private LocalDate registrationDate;
 
-    private BigDecimal groupBonus = BigDecimal.valueOf(0);
+    private BigDecimal groupBonus = BigDecimal.ZERO;
 
     public Person(String name, Person parent, BankAccount account , Tax taxTypePaid, LocalDate taxExpirationDate , LocalDate registrationDate , BigDecimal groupBonus) {
         this.name = name;

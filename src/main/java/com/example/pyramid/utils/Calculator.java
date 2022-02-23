@@ -18,6 +18,12 @@ public class Calculator {
 
     public static BigDecimal subtractFromFirst(BigDecimal numberOne, BigDecimal numberTwo) {return numberOne.subtract(numberTwo);}
 
+    /**
+     * vfsklgsf dlkg;jsfgl; sf;lg s
+     * @param numberOne
+     * @param numberTwo
+     * @return
+     */
     public static BigDecimal addToFirst(BigDecimal numberOne, BigDecimal numberTwo) {
         return numberOne.add(numberTwo);
     }

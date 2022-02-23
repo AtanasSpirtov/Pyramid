@@ -25,12 +25,12 @@ public class Facade extends _BaseService {
     @Autowired
     BinaryTreeService bstService;
 
-    public void registerUser(Person person, Long parentId) {
+    public void registerUserAndCreateAccount(Person person, Long parentId, BigDecimal amount) {
         registerTreeService.registerUser(person, parentId);
+        registerTreeService.createBankAccount(person, amount);
     }
 
-    public void createAccount(Person person, BigDecimal amount) throws Exception {
-        registerTreeService.createBankAccount(person, amount);
+    public void payPersonTax(Person person, BigDecimal amount) throws Exception {
         taxService.payTax(person, amount);
     }
 

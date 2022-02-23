@@ -20,29 +20,27 @@ public class BankServiceImpl extends _BaseService implements BankService {
 
     @Override
     @Transactional
-    public synchronized void transferMoney(BankAccount source, BankAccount recipient, BigDecimal amount , TransactionType transactionType){
-        em.lock(source , LockModeType.PESSIMISTIC_WRITE);
-        em.lock(recipient , LockModeType.PESSIMISTIC_WRITE);
+    public synchronized void transferMoney(BankAccount source, BankAccount recipient, BigDecimal amount, TransactionType transactionType) {
 
         if (Calculator.isNegative(amount)) {
             throw new RuntimeException("parameter amount cannot be negative");
         }
 
+        em.lock(source, LockModeType.PESSIMISTIC_WRITE);
         Objects.requireNonNull(source, "parameter source cannot be null");
+
+        em.lock(recipient, LockModeType.PESSIMISTIC_WRITE);
         Objects.requireNonNull(recipient, "parameter recipient cannot be null");
 
-        if (!source.getId().equals(Properties.companyClearingAccount)) {
-            if (Calculator.isNegative(source.getBalance())) {
-                throw new RuntimeException("balance cannot be negative");
-            }
-            if (Calculator.compare(source.getBalance() , amount) < 0) {
-                throw new RuntimeException("amount cannot be bigger than account balance");
-            }
+        if (!source.getId().equals(Properties.companyClearingAccount) && Calculator.compare(source.getBalance(), amount) < 0) {
+            throw new RuntimeException("amount cannot be bigger than account balance");
         }
-        source.setBalance(Calculator.subtractFromFirst(source.getBalance() , amount));
-        recipient.setBalance(Calculator.addToFirst(recipient.getBalance() , amount));
+
         LocalTime localTime = LocalTime.now();
-        em.persist(new Transaction(source, recipient, amount, localTime, OperationType.Debit , transactionType));
-        em.persist(new Transaction(recipient, source, amount, localTime, OperationType.Credit , transactionType));
+        em.persist(new Transaction(source, recipient, amount, localTime, OperationType.Debit, transactionType));
+        source.setBalance(Calculator.subtractFromFirst(source.getBalance(), amount));
+
+        em.persist(new Transaction(recipient, source, amount, localTime, OperationType.Credit, transactionType));
+        recipient.setBalance(Calculator.addToFirst(recipient.getBalance(), amount));
     }
 }

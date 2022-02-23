@@ -1,6 +1,7 @@
 package com.example.pyramid.services;
 
 import com.example.pyramid.model.BinaryTreePerson;
+import com.example.pyramid.model.PartnerRank;
 import com.example.pyramid.model.Person;
 import com.example.pyramid.model.enums.TransactionType;
 import com.example.pyramid.model.enums.bstEnums.PositionInBinaryTree;
@@ -14,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicReference;
@@ -26,11 +28,14 @@ public class BinaryTreeServiceImpl extends _BaseService implements BinaryTreeSer
     @Autowired
     BankService bankService;
 
+    private static final int MINIMAL_PEOPLE_REGISTERED_THIS_MONTH = 2;
+
     @Override
-    public void positionInBinaryTree(Person person, BinaryTreePerson parent, PositionInBinaryTree position) {
-        Objects.requireNonNull(person , "function parameter person cannot be null");
-        Objects.requireNonNull(parent , "function parameter parent cannot be null");
-        Objects.requireNonNull(person , "function parameter position cannot be null");
+    public void positionInBinaryTree(Person person, BinaryTreePerson parent, PositionInBinaryTree position, BinaryTreePerson registrator) {
+        Objects.requireNonNull(person, "function parameter person cannot be null");
+        Objects.requireNonNull(parent, "function parameter parent cannot be null");
+        Objects.requireNonNull(person, "function parameter position cannot be null");
+        if(!checkIfInRegistratorTree(registrator)) throw new RuntimeException("not in registrator tree");
 
         BinaryTreePerson bstPerson = new BinaryTreePerson();
         bstPerson.setPerson(person);
@@ -42,24 +47,29 @@ public class BinaryTreeServiceImpl extends _BaseService implements BinaryTreeSer
     @Override
     public void addAmount(Person person, BigDecimal amount) {
         if (Calculator.isNegative(amount)) throw new RuntimeException("Amount cannot be negative");
-        if (Objects.isNull(person)) throw new RuntimeException("Person must exist");
 
-        BinaryTreePerson bstPerson = em.createQuery
-                        ("select bstPerson from BinaryTreePerson bstPerson where bstPerson.person =: pPerson"
-                                , BinaryTreePerson.class)
-                .setParameter("pPerson", person).getSingleResult();
+        BinaryTreePerson bstPerson = findBinaryPerson(person);
 
         bstPerson.setMidBox(bstPerson.getMidBox().add(amount));
 
         AtomicReference<PositionInBinaryTree> initialPosition = new AtomicReference<>(bstPerson.getPosition());
 
         parentChain(bstPerson).forEach(bstParent -> {
-            if (initialPosition.get().equals(PositionInBinaryTree.Left))
+            if (initialPosition.get() == PositionInBinaryTree.Left) {
                 bstParent.setLeftBox(bstParent.getLeftBox().add(amount));
-            else if (initialPosition.get().equals(PositionInBinaryTree.Right))
+            } else if (initialPosition.get() == PositionInBinaryTree.Right) {
                 bstParent.setRightBox(bstParent.getRightBox().add(amount));
+            }
             initialPosition.set(bstParent.getPosition());
         });
+    }
+
+    private BinaryTreePerson findBinaryPerson(Person person) {
+        Objects.requireNonNull(person, "Person must exist");
+        return em.createQuery
+                        ("select bstPerson from BinaryTreePerson bstPerson where bstPerson.person =: pPerson"
+                                , BinaryTreePerson.class)
+                .setParameter("pPerson", person).getSingleResult();
     }
 
     @Override
@@ -69,48 +79,61 @@ public class BinaryTreeServiceImpl extends _BaseService implements BinaryTreeSer
                 .getSingleResult();
 
         em.createQuery("select bstPerson from BinaryTreePerson bstPerson", BinaryTreePerson.class)
-                .getResultList().parallelStream().forEach(participant -> {
-
-                    //check if tax is paid
-                    if (LocalDate.now().isAfter(participant.getPerson().getTaxExpirationDate())) return;
+                .getResultList().stream().filter(p -> LocalDate.now().isAfter(p.getPerson().getTaxExpirationDate()))
+                .forEach(participant -> {
 
                     //check if condition for min money is completed
-                    if (Calculator.addToFirst(participant.getLeftBox() , participant.getRightBox()).compareTo(Properties.BIG_DECIMAL_10000) < 0)
-                        return;
+                    BigDecimal boxesSum = Calculator.addToFirst(participant.getLeftBox(), participant.getRightBox());
+                    if (boxesSum.compareTo(Properties.BIG_DECIMAL_10000) >= 0) {
+                        List<BinaryTreePerson> registeredPeople = getRegistratedPeople(participant);
 
-                    List<BinaryTreePerson> registeredPeople = em.createQuery(
-                                    "select bstPerson from BinaryTreePerson bstPerson where bstPerson.registrant =: pRegistrant " +
-                                            "and bstPerson.person.registrationDate between : nowDate and : minusOneMonthDate",
-                                    BinaryTreePerson.class)
-                            .setParameter("pRegistrant", participant)
-                            .setParameter("nowDate", LocalDate.now())
-                            .setParameter("minusOneMonthDate", LocalDate.now().minusMonths(1L)).getResultList();
+                        if (registeredPeople.size() >= MINIMAL_PEOPLE_REGISTERED_THIS_MONTH &&
+                                checkRegistrationPeople(registeredPeople)) {
 
-                    //check if children are more than two
-                    if (registeredPeople.size() < 2) return;
+                                BigDecimal minAmount = participant.getLeftBox().min(participant.getRightBox());
+                                participant.getPerson().setGroupBonus(
+                                        Calculator.findPercent(participant.getPerson().getTaxTypePaid().getBonusPercentsInGroupBonus(), minAmount));
 
-                    if ((checkRegistrationPeople(registeredPeople, PositionInBinaryTree.Left)
-                            || checkRegistrationPeople(registeredPeople, PositionInBinaryTree.Right)))
-                        return;
-
-                    BigDecimal minAmount = participant.getLeftBox().min(participant.getRightBox());
-
-                    participant.getPerson().setGroupBonus(
-                            Calculator.findPercent(participant.getPerson().getTaxTypePaid().getBonusPercentsInGroupBonus() , minAmount));
-
-                    bankService.transferMoney(
-                            companyInBST.getPerson().getAccount(),
-                            participant.getPerson().getAccount(),
-                            participant.getPerson().getGroupBonus(),
-                            TransactionType.Group_Bonus);
+                                bankService.transferMoney(
+                                        companyInBST.getPerson().getAccount(),
+                                        participant.getPerson().getAccount(),
+                                        participant.getPerson().getGroupBonus(),
+                                        TransactionType.Group_Bonus);
+                        }
+                    }
                 });
+    }
+
+    private List<BinaryTreePerson> getRegistratedPeople(BinaryTreePerson participant) {
+        LocalDate taxPaymentTime = LocalDate.now();
+        return em.createQuery(
+                        "select bstPerson from BinaryTreePerson bstPerson where bstPerson.registrator =: pRegistrator " +
+                                "and bstPerson.person.registrationDate between : nowDate and : minusOneMonthDate",
+                        BinaryTreePerson.class)
+                .setParameter("pRegistrator", participant)
+                .setParameter("nowDate", taxPaymentTime)
+                .setParameter("minusOneMonthDate", taxPaymentTime.minusMonths(1L)).getResultList();
     }
 
     private static Stream<BinaryTreePerson> parentChain(BinaryTreePerson person) {
         return Objects.nonNull(person.getParent())
                 ? Stream.concat(Stream.of(person.getParent()), parentChain(person.getParent())) : Stream.empty();
     }
-    private static boolean checkRegistrationPeople(List<BinaryTreePerson> registrationPeople, PositionInBinaryTree position) {
-        return registrationPeople.parallelStream().noneMatch(c -> c.getPosition().equals(position));
+
+        private static boolean checkIfInRegistratorTree(BinaryTreePerson person){
+        return parentChain(person).anyMatch(parent -> parent.equals(person));
+        //TODO dovurshi
     }
+    private static boolean checkRegistrationPeople(List<BinaryTreePerson> registrationPeople) {
+        boolean leftFound = false;
+        boolean rightFound = false;
+        for (BinaryTreePerson registrationPerson : registrationPeople) {
+            if (registrationPerson.getPosition() == PositionInBinaryTree.Left) {
+                leftFound = true;
+            }
+            else rightFound = true;
+        }
+        return leftFound && rightFound;
+    }
+
 }

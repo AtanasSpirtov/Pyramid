@@ -6,6 +6,8 @@ import javax.persistence.*;
 import java.math.BigDecimal;
 
 @Entity
+@Table(indexes = {
+        @Index(name = "registatorIndex" , columnList = "registrator") })
 public class BinaryTreePerson extends _BaseEntity {
 
     @OneToOne
@@ -17,14 +19,14 @@ public class BinaryTreePerson extends _BaseEntity {
     @Enumerated(EnumType.STRING)
     private PositionInBinaryTree position;
 
-    private BigDecimal leftBox = BigDecimal.valueOf(0);
+    private BigDecimal leftBox = BigDecimal.ZERO;
 
-    private BigDecimal midBox = BigDecimal.valueOf(0);
+    private BigDecimal midBox = BigDecimal.ZERO;
 
-    private BigDecimal rightBox = BigDecimal.valueOf(0);
+    private BigDecimal rightBox = BigDecimal.ZERO;
 
     @OneToOne
-    private BinaryTreePerson registrant;
+    private BinaryTreePerson registrator;
 
     public Person getPerson() {
         return person;
@@ -74,12 +76,12 @@ public class BinaryTreePerson extends _BaseEntity {
         this.rightBox = rightBox;
     }
 
-    public BinaryTreePerson getRegistrant() {
-        return registrant;
+    public BinaryTreePerson getRegistrator() {
+        return registrator;
     }
 
-    public void setRegistrant(BinaryTreePerson registrant) {
-        this.registrant = registrant;
+    public void setRegistrator(BinaryTreePerson registrant) {
+        this.registrator = registrant;
     }
 
 }

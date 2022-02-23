@@ -7,5 +7,4 @@ import java.math.BigDecimal;
 public interface RegisterTreeService {
     void registerUser(Person user , Long parentId);
     void createBankAccount(Person user , BigDecimal amount);
-    void processAllPartnerBonuses();
 }
