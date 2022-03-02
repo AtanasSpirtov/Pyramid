@@ -6,8 +6,13 @@ import javax.persistence.*;
 import java.math.BigDecimal;
 
 @Entity
-@Table(indexes = {
-        @Index(name = "registatorIndex" , columnList = "registrator") })
+@Table(indexes = { @Index(name = "registatorIndex", columnList = "registrator") })
+@NamedQuery(name = "BinaryTreePerson.findCompany", query = "select bstPerson from BinaryTreePerson bstPerson where bstPerson.id = 1")
+@NamedQuery(name = "BinaryTreePerson.findBinaryTreePerson", query = "select bstPerson from BinaryTreePerson bstPerson where bstPerson.person =: pPerson")
+@NamedQuery(name = "BinaryTreePerson.findAllBinaryTreePersons", query = "select bstPerson from BinaryTreePerson bstPerson")
+@NamedQuery(name = "BinaryTreePerson.selectPeopleRegistratedLastMonth", query = "select bstPerson from BinaryTreePerson bstPerson where bstPerson.registrator =: pRegistrator "
+        + "and bstPerson.person.registrationDate between : nowDate and : minusOneMonthDate")
+
 public class BinaryTreePerson extends _BaseEntity {
 
     @OneToOne
@@ -27,6 +32,9 @@ public class BinaryTreePerson extends _BaseEntity {
 
     @OneToOne
     private BinaryTreePerson registrator;
+
+    @OneToOne
+    BonusReport bonusReport;
 
     public Person getPerson() {
         return person;
@@ -84,4 +92,11 @@ public class BinaryTreePerson extends _BaseEntity {
         this.registrator = registrant;
     }
 
+    public BonusReport getBonusReport() {
+        return bonusReport;
+    }
+
+    public void setBonusReport(BonusReport bonusReport) {
+        this.bonusReport = bonusReport;
+    }
 }

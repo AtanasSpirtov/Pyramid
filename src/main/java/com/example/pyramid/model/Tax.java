@@ -1,9 +1,12 @@
 package com.example.pyramid.model;
 
 import javax.persistence.Entity;
+import javax.persistence.NamedQuery;
 import java.math.BigDecimal;
 
 @Entity
+@NamedQuery(name = "Tax.findHighestTax",
+        query = "select tax from Tax tax where tax.taxAmount < :pAmount order by tax.taxAmount desc ")
 public class Tax extends _BaseEntity{
 
     private String name;

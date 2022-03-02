@@ -29,8 +29,7 @@ public class TaxServiceImpl extends _BaseService implements TaxService {
     @Override
     @Transactional
     public void payTax(Person person, BigDecimal amount) {
-        Tax tax = em.createQuery(
-                        "select tax from Tax tax where tax.taxAmount < :pAmount order by tax.taxAmount desc ", Tax.class)
+        Tax tax = em.createNamedQuery("Tax.findHighestTax" , Tax.class)
                 .setParameter("pAmount", amount).setMaxResults(1).getSingleResult();
 
         //mark tax as paid

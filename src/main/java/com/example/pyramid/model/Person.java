@@ -5,6 +5,10 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 
 @Entity
+@NamedQuery(name = "Person.getAllPeople", query = "select people from Person people")
+@NamedQuery(name = "People.getAllDirectChildren",
+        query = "select children from Person children where children.parent =: pPersonForBonus")
+
 public class Person extends _BaseEntity {
 
     private String name;

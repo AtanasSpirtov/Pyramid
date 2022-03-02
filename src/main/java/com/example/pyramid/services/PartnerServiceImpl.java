@@ -1,9 +1,11 @@
 package com.example.pyramid.services;
 
+import com.example.pyramid.model.BinaryTreePerson;
+import com.example.pyramid.model.BonusReport;
 import com.example.pyramid.model.PartnerRank;
 import com.example.pyramid.model.Person;
-import com.example.pyramid.model._BaseEntity;
 import com.example.pyramid.model.enums.TransactionType;
+import com.example.pyramid.model.enums.bstEnums.BonusStatus;
 import com.example.pyramid.services.api.BankService;
 import com.example.pyramid.services.api.PartnerService;
 import com.example.pyramid.utils.Calculator;
@@ -11,17 +13,22 @@ import com.example.pyramid.utils.Properties;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+
+import static com.example.pyramid.model.enums.bstEnums.BonusStatus.*;
 
 public class PartnerServiceImpl extends _BaseService implements PartnerService {
     @Autowired
     BankService bankService;
 
+    private static final int STARTING_LEVEL = 1;
+
     @Override
     public void processAllPartnerBonuses() {
-        em.createQuery("select persons from Person persons", Person.class)
+        em.createNamedQuery("Person.getAllPeople" , Person.class)
                 .getResultList().forEach(this::processPartnerBonus);
     }
 
@@ -31,23 +38,20 @@ public class PartnerServiceImpl extends _BaseService implements PartnerService {
         Objects.requireNonNull(person, "cannot process partner bonus on null person");
 
         //finding all direct children of person that are minimum rank 3
-        List<Person> childrenMinRankThree = em.createQuery(
-                        "select children from Person children where children.parent =: pPersonForBonus", Person.class)
+        List<Person> childrenMinRankThree = em.createNamedQuery("People.getAllDirectChildren", Person.class)
                 .setParameter("pPersonForBonus", person).getResultList().stream()
                 .filter(child -> child.getGroupBonus().compareTo(Properties.BIG_DECIMAL_10000) >= 0)
                 .toList();
 
         //finding rank of person
-        PartnerRank rankOfPerson = em.createQuery(
-                        "select partnerRank from PartnerRank partnerRank " +
-                                "where partnerRank.minGroupBonus < :pAmount and partnerRank.count < :pChildrenCount order by partnerRank.minGroupBonus desc", PartnerRank.class)
+        PartnerRank rankOfPerson = em.createNamedQuery("PartnerRank.FindPartnerRankForPerson", PartnerRank.class)
                 .setParameter("pAmount", person.getGroupBonus())
                 .setParameter("pChildrenCount", childrenMinRankThree.size())
                 .setMaxResults(1).getSingleResult();
 
         //fill list bonusFromEveryChild
         List<BigDecimal> bonusFromEveryChild = new ArrayList<>();
-        calculatePartnerBonuses(person, 1, rankOfPerson, bonusFromEveryChild);
+        calculatePartnerBonuses(person, STARTING_LEVEL, rankOfPerson, bonusFromEveryChild);
 
         //calculate sum of all partner bonuses from every child
         BigDecimal finalPartnerBonus = bonusFromEveryChild.parallelStream()
@@ -59,20 +63,22 @@ public class PartnerServiceImpl extends _BaseService implements PartnerService {
                 person.getAccount(),
                 finalPartnerBonus,
                 TransactionType.Partner_Bonus);
+
+        writeReportForPartnerBonus(person);
     }
 
     private void calculatePartnerBonuses(Person person, int levelCounter,
                                          PartnerRank rankOfPersonForBonus, List<BigDecimal> amountFromEveryChild) {
 
-        List<Person> children = em.createQuery("select children from Person children where children.parent =: pPerson", Person.class)
-                .setParameter("pPerson", person).getResultList();
+        List<Person> children = em.createNamedQuery("People.getAllDirectChildren", Person.class)
+                .setParameter("pPersonForBonus", person).getResultList();
 
         //recursion bottom condition
         if (!children.isEmpty() && levelCounter <= 7)
             children.forEach(p -> {
 
                 //check if person has groupBonus
-                if (!Calculator.isZero(p.getGroupBonus())) {
+                if (checkIfTakenGroupBonus(p)) {
 
                     //getting from group bonus of every child depending on persons rank and children level
                     switch (levelCounter) {
@@ -91,5 +97,16 @@ public class PartnerServiceImpl extends _BaseService implements PartnerService {
                 //recursively call its children
                 calculatePartnerBonuses(p, levelCounter + 1, rankOfPersonForBonus, amountFromEveryChild);
             });
+    }
+    private boolean checkIfTakenGroupBonus(Person p){
+        return  em.createNamedQuery("BinaryTreePerson.findBinaryTreePerson", BinaryTreePerson.class).setParameter("pPerson", p)
+                .getSingleResult().getBonusReport().getStatus() == GroupBonus;
+    }
+    private void writeReportForPartnerBonus(Person p) {
+        BonusReport bonusReport = em.createNamedQuery("BinaryTreePerson.findBinaryTreePerson", BinaryTreePerson.class)
+                .setParameter("pPerson", p)
+                .getSingleResult().getBonusReport();
+        bonusReport.setProcessTime(LocalDateTime.now());
+        bonusReport.setStatus(BonusStatus.PratnerBonus);
     }
 }

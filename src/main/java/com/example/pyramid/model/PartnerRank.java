@@ -2,9 +2,13 @@ package com.example.pyramid.model;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.NamedQuery;
 import java.math.BigDecimal;
 
 @Entity
+@NamedQuery(name = "PartnerRank.FindPartnerRankForPerson", query = "select partnerRank from PartnerRank partnerRank "
+        + "where partnerRank.minGroupBonus < :pAmount and partnerRank.count < :pChildrenCount order by partnerRank.minGroupBonus desc")
+
 public class PartnerRank extends _BaseEntity{
 
     private String rank;
