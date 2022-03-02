@@ -6,7 +6,7 @@ import javax.persistence.*;
 import java.math.BigDecimal;
 
 @Entity
-@Table(indexes = { @Index(name = "registatorIndex", columnList = "registrator") })
+@Table(indexes = { @Index(name = "registatorIndex", columnList = "registrator_id") })
 @NamedQuery(name = "BinaryTreePerson.findCompany", query = "select bstPerson from BinaryTreePerson bstPerson where bstPerson.id = 1")
 @NamedQuery(name = "BinaryTreePerson.findBinaryTreePerson", query = "select bstPerson from BinaryTreePerson bstPerson where bstPerson.person =: pPerson")
 @NamedQuery(name = "BinaryTreePerson.findAllBinaryTreePersons", query = "select bstPerson from BinaryTreePerson bstPerson")
