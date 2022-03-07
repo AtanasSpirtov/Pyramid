@@ -32,7 +32,7 @@ public class BankServiceImpl extends _BaseService implements BankService {
         em.lock(recipient, LockModeType.PESSIMISTIC_WRITE);
         Objects.requireNonNull(recipient, "parameter recipient cannot be null");
 
-        if (!source.getId().equals(Properties.companyClearingAccount) && Calculator.compare(source.getBalance(), amount) < 0) {
+        if (!source.getId().equals(Properties.COMPANY_CLEARING_ACCOUNT) && Calculator.compare(source.getBalance(), amount) < 0) {
             throw new RuntimeException("amount cannot be bigger than account balance");
         }
 

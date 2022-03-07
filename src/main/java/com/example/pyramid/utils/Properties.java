@@ -15,7 +15,7 @@ public class Properties {
 
     public  static final Long COMPANY_ID = 1L;
 
-    public static final Long companyClearingAccount = -1L;
+    public static final Long COMPANY_CLEARING_ACCOUNT = -1L;
 
 
 }
