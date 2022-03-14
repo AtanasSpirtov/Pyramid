@@ -18,7 +18,6 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Stream;
 
 import static com.example.pyramid.model.enums.bstEnums.BonusStatus.*;
@@ -55,18 +54,18 @@ public class BinaryTreeServiceImpl extends _BaseService implements BinaryTreeSer
         BinaryTreePerson bstPerson = findBinaryPerson(person);
 
         bstPerson.setMidBox(bstPerson.getMidBox().add(amount));
+        List<BinaryTreePerson> parentChainResult = parentChain(bstPerson).toList();
 
-        AtomicReference<PositionInBinaryTree> initialPosition = new AtomicReference<>(bstPerson.getPosition());
+        PositionInBinaryTree initialPosition = bstPerson.getPosition();
 
-        parentChain(bstPerson).forEach(bstParent -> {
-            if (initialPosition.get() == PositionInBinaryTree.Left) {
+        for (BinaryTreePerson bstParent : parentChainResult) {
+            if (initialPosition == PositionInBinaryTree.Left) {
                 bstParent.setLeftBox(bstParent.getLeftBox().add(amount));
-            } else if (initialPosition.get() == PositionInBinaryTree.Right) {
+            } else if (initialPosition == PositionInBinaryTree.Right) {
                 bstParent.setRightBox(bstParent.getRightBox().add(amount));
             }
-            initialPosition.set(bstParent.getPosition());
-        });
-
+            initialPosition = bstParent.getPosition();
+        }
     }
 
     @Override
@@ -148,8 +147,12 @@ public class BinaryTreeServiceImpl extends _BaseService implements BinaryTreeSer
             } else {
                 rightFound = true;
             }
+            if(leftFound && rightFound)
+            {
+                return true;
+            }
         }
-        return leftFound && rightFound;
+        return false;
     }
 
     private static BigDecimal getMinValueFromBoxes(BinaryTreePerson p) {
